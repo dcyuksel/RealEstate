@@ -7,17 +7,21 @@ namespace RealEstate.Shared.Services
     public class ThrottledHttpClientServiceAsync<T> : IThrottledHttpClientServiceAsync<T> where T : class
     {
         private readonly IHttpClientServiceAsync httpClientServiceAsync;
+        private readonly RealEstateConfiguration realEstateConfiguration;
 
-        public ThrottledHttpClientServiceAsync(IHttpClientServiceAsync httpClientServiceAsync)
+        public ThrottledHttpClientServiceAsync(
+            IHttpClientServiceAsync httpClientServiceAsync,
+            RealEstateConfiguration realEstateConfiguration)
         {
             this.httpClientServiceAsync = httpClientServiceAsync;
+            this.realEstateConfiguration = realEstateConfiguration;
         }
 
         public async Task<IReadOnlyList<T>> GetAsync(IReadOnlyList<string> urls)
         {
             var semaphoreSlim = new SemaphoreSlim(
-                  initialCount: 10,
-                  maxCount: 10);
+                  initialCount: realEstateConfiguration.HttpRequestInitialCount,
+                  maxCount: realEstateConfiguration.HttpRequestMaxCount);
             var responses = new ConcurrentBag<T>();
 
             var i = 0;

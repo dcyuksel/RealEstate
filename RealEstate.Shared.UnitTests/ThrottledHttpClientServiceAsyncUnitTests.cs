@@ -35,7 +35,7 @@ namespace RealEstate.Shared.UnitTests
         public async Task GetAsyncTest()
         {
             var urls = new List<string> { Url, Url, Url };
-            var throttledHttpClientServiceAsync = new ThrottledHttpClientServiceAsync<IEnumerable<string>>(mockHttpClientService.Object);
+            var throttledHttpClientServiceAsync = new ThrottledHttpClientServiceAsync<IEnumerable<string>>(mockHttpClientService.Object, new RealEstateConfiguration("key", 10, 10));
             var result = await throttledHttpClientServiceAsync.GetAsync(urls);
             Assert.AreEqual(urls.Count, result.Count);
         }
