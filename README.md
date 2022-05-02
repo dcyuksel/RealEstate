@@ -9,8 +9,12 @@ Funda's Real Estate Agents
         "HttpRequestMaxCount":  10
       }
 
+.Normally appsettings.json must be excluded from the project but it is existed in this repository in order to make reviewer's job easier :)
+
 .There are two different endpoints. One is for listing top 10 real estate agents,
 the other one is for listing top 10 real estate agents with garden.
 
 .Swagger is integrated. Endpoints can be used by it. 
 https://localhost:5001/swagger/index.html
+
+.appSettings are 
