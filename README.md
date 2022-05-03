@@ -16,5 +16,4 @@ the other one is for listing top 10 real estate agents with garden.
 
 .Swagger is integrated. Endpoints can be used by it. 
 https://localhost:5001/swagger/index.html
-
-.appSettings are 
+ 
