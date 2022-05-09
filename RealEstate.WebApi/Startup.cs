@@ -28,7 +28,13 @@ namespace RealEstate.WebApi
 
             services.AddApplicationServices();
             services.AddSharedServices();
-            AddConfiguration(services);
+
+
+            var configuration = Configuration.Get<RealEstateConfiguration>();
+            configuration.Validate();
+            services.AddSingleton(configuration);
+
+            //AddConfiguration(services);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -50,13 +56,13 @@ namespace RealEstate.WebApi
             });
         }
 
-        private void AddConfiguration(IServiceCollection services)
-        {
-            var realEstateHttpApiKey = Configuration.GetValue<string>("RealEstateApiKey");
-            var httpRequestInitialCount = Configuration.GetValue<int>("HttpRequestInitialCount");
-            var httpRequestMaxCount = Configuration.GetValue<int>("HttpRequestMaxCount");
-            var realEstateConfiguration = new RealEstateConfiguration(realEstateHttpApiKey, httpRequestInitialCount, httpRequestMaxCount);
-            services.AddSingleton(realEstateConfiguration);
-        }
+        //private void AddConfiguration(IServiceCollection services)
+        //{
+        //    var realEstateHttpApiKey = Configuration.GetValue<string>("RealEstateApiKey");
+        //    var httpRequestInitialCount = Configuration.GetValue<int>("HttpRequestInitialCount");
+        //    var httpRequestMaxCount = Configuration.GetValue<int>("HttpRequestMaxCount");
+        //    var realEstateConfiguration = new RealEstateConfiguration(realEstateHttpApiKey, httpRequestInitialCount, httpRequestMaxCount);
+        //    services.AddSingleton(realEstateConfiguration);
+        //}
     }
 }

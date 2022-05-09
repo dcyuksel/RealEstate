@@ -12,7 +12,7 @@ namespace RealEstate.Shared.UnitTests
         [TestCase(1000, 15, "apiKey4", "http://partnerapi.funda.nl/feeds/Aanbod.svc/json/apiKey4/?type=koop&zo=/amsterdam/makelaar/&page=1000&pagesize = 15")]
         public void GetRealEstateAgentUrlTest(int pageNumber, int pageSize, string apiKey, string expectedResult)
         {
-            var urlService = new UrlService(new RealEstateConfiguration(apiKey, 10, 10));
+            var urlService = new UrlService(new RealEstateConfiguration { RealEstateApiKey = apiKey, HttpRequestInitialCount = 10, HttpRequestMaxCount = 10 });
             var result = urlService.GetRealEstateAgentUrl(pageNumber, pageSize);
             Assert.AreEqual(expectedResult, result);
         }
@@ -24,7 +24,7 @@ namespace RealEstate.Shared.UnitTests
         [TestCase(1000, 15, "apiKey4", "http://partnerapi.funda.nl/feeds/Aanbod.svc/json/apiKey4/?type=koop&zo=/amsterdam/tuin/&page=1000&pagesize = 15")]
         public void GetRealEstateAgentWithGardenUrlTest(int pageNumber, int pageSize, string apiKey, string expectedResult)
         {
-            var urlService = new UrlService(new RealEstateConfiguration(apiKey, 10, 10));
+            var urlService = new UrlService(new RealEstateConfiguration { RealEstateApiKey = apiKey, HttpRequestInitialCount = 10, HttpRequestMaxCount = 10 });
             var result = urlService.GetRealEstateAgentWithGardenUrl(pageNumber, pageSize);
             Assert.AreEqual(expectedResult, result);
         }

@@ -13,12 +13,12 @@ namespace RealEstate.Shared.Services
 
         public string GetRealEstateAgentUrl(int pageNumber, int pageSize)
         {
-            return $"http://partnerapi.funda.nl/feeds/Aanbod.svc/json/{realEstateConfiguration.ApiKey}/?type=koop&zo=/amsterdam/makelaar/&page={pageNumber}&pagesize = {pageSize}";
+            return $"http://partnerapi.funda.nl/feeds/Aanbod.svc/json/{realEstateConfiguration.RealEstateApiKey}/?type=koop&zo=/amsterdam/makelaar/&page={pageNumber}&pagesize = {pageSize}";
         }
 
         public string GetRealEstateAgentWithGardenUrl(int pageNumber, int pageSize)
         {
-            return $"http://partnerapi.funda.nl/feeds/Aanbod.svc/json/{realEstateConfiguration.ApiKey}/?type=koop&zo=/amsterdam/tuin/&page={pageNumber}&pagesize = {pageSize}";
+            return $"http://partnerapi.funda.nl/feeds/Aanbod.svc/json/{realEstateConfiguration.RealEstateApiKey}/?type=koop&zo=/amsterdam/tuin/&page={pageNumber}&pagesize = {pageSize}";
         }
     }
 }
