@@ -1,6 +1,6 @@
-﻿namespace RealEstate.Application.Algorithms
+﻿namespace RealEstate.Application.Extensions
 {
-    public static class RealEstateAlgorithmExtension
+    public static class IEnumerableExtension
     {
         public static IEnumerable<TSource> TakeTopNItems<TSource, TKey>(this IEnumerable<TSource> items, int n, Func<TSource, TKey> keySelector)
         {

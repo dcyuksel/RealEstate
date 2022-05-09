@@ -1,12 +1,12 @@
 ﻿using NUnit.Framework;
-using RealEstate.Application.Algorithms;
+using RealEstate.Application.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace RealEstate.Application.UnitTests
 {
-    public class RealEstateAlgorithmExtensionTests
+    public class IEnumerableExtensionTests
     {
         private IEnumerable<TestClass> Items;
 

@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using RealEstate.Application.Algorithms;
+using RealEstate.Application.Extensions;
 using RealEstate.Application.Interfaces.Shared;
 using RealEstate.Application.Models;
 
