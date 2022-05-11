@@ -6,6 +6,13 @@ using Microsoft.OpenApi.Models;
 using RealEstate.Application;
 using RealEstate.Shared;
 using RealEstate.WebApi.Middlewares;
+using Microsoft.Extensions.Http;
+using Polly;
+using System.Net.Http;
+using System;
+using Polly.Extensions.Http;
+using RealEstate.Application.Interfaces.Shared;
+using RealEstate.Shared.Services;
 
 namespace RealEstate.WebApi
 {
@@ -26,15 +33,18 @@ namespace RealEstate.WebApi
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "RealEstate.WebApi", Version = "v1" });
             });
 
+            var retryPolicy = HttpPolicyExtensions
+                .HandleTransientHttpError()
+                .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(retryAttempt));
+
+            services.AddHttpClient("funda").AddPolicyHandler(retryPolicy);
+
             services.AddApplicationServices();
             services.AddSharedServices();
-
 
             var configuration = Configuration.Get<RealEstateConfiguration>();
             configuration.Validate();
             services.AddSingleton(configuration);
-
-            //AddConfiguration(services);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -55,14 +65,5 @@ namespace RealEstate.WebApi
                 endpoints.MapControllers();
             });
         }
-
-        //private void AddConfiguration(IServiceCollection services)
-        //{
-        //    var realEstateHttpApiKey = Configuration.GetValue<string>("RealEstateApiKey");
-        //    var httpRequestInitialCount = Configuration.GetValue<int>("HttpRequestInitialCount");
-        //    var httpRequestMaxCount = Configuration.GetValue<int>("HttpRequestMaxCount");
-        //    var realEstateConfiguration = new RealEstateConfiguration(realEstateHttpApiKey, httpRequestInitialCount, httpRequestMaxCount);
-        //    services.AddSingleton(realEstateConfiguration);
-        //}
     }
 }

@@ -6,14 +6,12 @@ namespace RealEstate.Shared.Services
 {
     public class ThrottledHttpClientServiceAsync<T> : IThrottledHttpClientServiceAsync<T> where T : class
     {
-        private readonly IHttpClientServiceAsync httpClientServiceAsync;
+        private readonly IHttpClientFactory httpClientFactory;
         private readonly RealEstateConfiguration realEstateConfiguration;
 
-        public ThrottledHttpClientServiceAsync(
-            IHttpClientServiceAsync httpClientServiceAsync,
-            RealEstateConfiguration realEstateConfiguration)
+        public ThrottledHttpClientServiceAsync(IHttpClientFactory httpClientFactory, RealEstateConfiguration realEstateConfiguration)
         {
-            this.httpClientServiceAsync = httpClientServiceAsync;
+            this.httpClientFactory = httpClientFactory;
             this.realEstateConfiguration = realEstateConfiguration;
         }
 
@@ -23,6 +21,7 @@ namespace RealEstate.Shared.Services
                   initialCount: realEstateConfiguration.HttpRequestInitialCount,
                   maxCount: realEstateConfiguration.HttpRequestMaxCount);
             var responses = new ConcurrentBag<T>();
+            var httpClient = httpClientFactory.CreateClient("funda");
 
             var i = 0;
             while (i < urls.Count)
@@ -30,7 +29,7 @@ namespace RealEstate.Shared.Services
                 var url = urls[i];
                 await semaphoreSlim.WaitAsync();
 
-                var response = await httpClientServiceAsync.GetAsync(url);
+                var response = await httpClient.GetAsync(url);
                 if (!response.IsSuccessStatusCode)
                 {
                     await Task.Delay(1000);
