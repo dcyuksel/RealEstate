@@ -8,16 +8,13 @@ namespace RealEstate.Application.Queries.RealEstateAgent
     public class TopTenRealEstateAgentWithGardenQueryHandler : IRequestHandler<RealEstateAgentsWithGardenQuery, Response<IEnumerable<RealEstateAgentWithGardenViewModel>>>
     {
         private readonly IUrlService urlService;
-        private readonly IHttpClientWrapperAsync<RealEstateApiResponseModel<RealEstateAgentWithGardenApiResponseModel>> httpClientWrapperAsync;
         private readonly IThrottledHttpClientServiceAsync<RealEstateApiResponseModel<RealEstateAgentWithGardenApiResponseModel>> throttledHttpClientServiceAsync;
 
         public TopTenRealEstateAgentWithGardenQueryHandler(
             IUrlService urlService,
-            IHttpClientWrapperAsync<RealEstateApiResponseModel<RealEstateAgentWithGardenApiResponseModel>> httpClientWrapperAsync,
             IThrottledHttpClientServiceAsync<RealEstateApiResponseModel<RealEstateAgentWithGardenApiResponseModel>> throttledHttpClientServiceAsync)
         {
             this.urlService = urlService;
-            this.httpClientWrapperAsync = httpClientWrapperAsync;
             this.throttledHttpClientServiceAsync = throttledHttpClientServiceAsync;
         }
 
@@ -39,7 +36,7 @@ namespace RealEstate.Application.Queries.RealEstateAgent
         {
             // The api returns 15 items no matter page size is
             var firstPageUrl = this.urlService.GetRealEstateAgentUrl(1, 15);
-            var firstPage = await httpClientWrapperAsync.GetAsync(firstPageUrl);
+            var firstPage = await throttledHttpClientServiceAsync.GetAsync(firstPageUrl);
 
             var urls = new List<string>();
             for (var i = 2; i <= firstPage.Paging.AantalPaginas; i++)

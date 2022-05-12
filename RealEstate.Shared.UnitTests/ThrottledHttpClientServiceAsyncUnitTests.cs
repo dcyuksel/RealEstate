@@ -12,7 +12,7 @@ namespace RealEstate.Shared.UnitTests
     public class ThrottledHttpClientServiceAsyncUnitTests
     {
         private readonly string Url = "http://localhost:1234";
-        private readonly IEnumerable<string> SampleData = new List<string> { "real", "estate" };
+        private readonly IList<string> SampleData = new List<string> { "real", "estate" };
         private Mock<IHttpClientFactory> mockHttpClientFactory;
 
         [SetUp]
@@ -33,12 +33,22 @@ namespace RealEstate.Shared.UnitTests
         }
 
         [Test]
-        public async Task GetAsyncTest()
+        public async Task MultipleGetAsyncTest()
         {
             var urls = new List<string> { Url, Url, Url };
-            var throttledHttpClientServiceAsync = new ThrottledHttpClientServiceAsync<IEnumerable<string>>(mockHttpClientFactory.Object, new RealEstateConfiguration { RealEstateApiKey = "key", HttpRequestInitialCount = 10, HttpRequestMaxCount = 10 });
+            var throttledHttpClientServiceAsync = new ThrottledHttpClientServiceAsync<IList<string>>(mockHttpClientFactory.Object, new RealEstateConfiguration { RealEstateApiKey = "key", HttpRequestInitialCount = 10, HttpRequestMaxCount = 10 });
             var result = await throttledHttpClientServiceAsync.GetAsync(urls);
             Assert.AreEqual(urls.Count, result.Count);
+        }
+
+        [Test]
+        public async Task SingleGetAsyncTest()
+        {
+            var throttledHttpClientServiceAsync = new ThrottledHttpClientServiceAsync<IList<string>>(mockHttpClientFactory.Object, new RealEstateConfiguration { RealEstateApiKey = "key", HttpRequestInitialCount = 10, HttpRequestMaxCount = 10 });
+            var result = await throttledHttpClientServiceAsync.GetAsync(Url);
+            Assert.AreEqual(SampleData.Count, result.Count);
+            Assert.AreEqual(SampleData[0], result[0]);
+            Assert.AreEqual(SampleData[1], result[1]);
         }
     }
 }

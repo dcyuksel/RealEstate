@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using RealEstate.Application.Exceptions;
 using RealEstate.Application.Models;
 using System;
 using System.Net;
@@ -26,6 +27,17 @@ namespace RealEstate.WebApi.Middlewares
             try
             {
                 await next(context);
+            }
+            catch (HttpRequestFailException error)
+            {
+                var response = context.Response;
+                response.ContentType = "application/json";
+                var responseModel = new Response<string>() { Succeeded = false, Message = error?.Message };
+                Logger.LogError(error.Message, error);
+                response.StatusCode = (int)HttpStatusCode.BadGateway;
+                var result = JsonSerializer.Serialize(responseModel);
+
+                await response.WriteAsync(result);
             }
             catch (Exception error)
             {

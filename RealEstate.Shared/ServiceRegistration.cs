@@ -9,7 +9,6 @@ namespace RealEstate.Shared
         public static void AddSharedServices(this IServiceCollection services)
         {
             services.AddTransient<IUrlService, UrlService>();
-            services.AddTransient(typeof(IHttpClientWrapperAsync<>), typeof(HttpClientWrapperAsync<>));
             services.AddTransient(typeof(IThrottledHttpClientServiceAsync<>), typeof(ThrottledHttpClientServiceAsync<>));
         }
     }

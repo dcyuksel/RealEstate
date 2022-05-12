@@ -6,13 +6,10 @@ using Microsoft.OpenApi.Models;
 using RealEstate.Application;
 using RealEstate.Shared;
 using RealEstate.WebApi.Middlewares;
-using Microsoft.Extensions.Http;
 using Polly;
-using System.Net.Http;
 using System;
 using Polly.Extensions.Http;
-using RealEstate.Application.Interfaces.Shared;
-using RealEstate.Shared.Services;
+using System.Net;
 
 namespace RealEstate.WebApi
 {
@@ -33,18 +30,19 @@ namespace RealEstate.WebApi
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "RealEstate.WebApi", Version = "v1" });
             });
 
-            var retryPolicy = HttpPolicyExtensions
-                .HandleTransientHttpError()
-                .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(retryAttempt));
-
-            services.AddHttpClient("funda").AddPolicyHandler(retryPolicy);
-
-            services.AddApplicationServices();
-            services.AddSharedServices();
-
             var configuration = Configuration.Get<RealEstateConfiguration>();
             configuration.Validate();
             services.AddSingleton(configuration);
+
+            var retryPolicy = HttpPolicyExtensions
+                .HandleTransientHttpError()
+                .OrResult(response => response.StatusCode != HttpStatusCode.OK)
+                .WaitAndRetryAsync(configuration.RetryCountPerRequest, retryAttempt => TimeSpan.FromSeconds(retryAttempt));
+
+            services.AddHttpClient(configuration.HttpClientName).AddPolicyHandler(retryPolicy);
+
+            services.AddApplicationServices();
+            services.AddSharedServices();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

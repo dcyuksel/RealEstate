@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using RealEstate.Application.Exceptions;
 using RealEstate.Application.Interfaces.Shared;
 using System.Collections.Concurrent;
 
@@ -17,35 +18,52 @@ namespace RealEstate.Shared.Services
 
         public async Task<IReadOnlyList<T>> GetAsync(IReadOnlyList<string> urls)
         {
-            var semaphoreSlim = new SemaphoreSlim(
-                  initialCount: realEstateConfiguration.HttpRequestInitialCount,
-                  maxCount: realEstateConfiguration.HttpRequestMaxCount);
-            var responses = new ConcurrentBag<T>();
-            var httpClient = httpClientFactory.CreateClient("funda");
+            var semaphore = new Semaphore(realEstateConfiguration.HttpRequestInitialCount, realEstateConfiguration.HttpRequestMaxCount, realEstateConfiguration.SemaphoreName);
+            var httpClient = httpClientFactory.CreateClient(realEstateConfiguration.HttpClientName);
+            var responses = new ConcurrentBag<HttpResponseMessage>();
 
-            var i = 0;
-            while (i < urls.Count)
+            var tasks = urls.Select(async url =>
             {
-                var url = urls[i];
-                await semaphoreSlim.WaitAsync();
-
+                semaphore.WaitOne();
                 var response = await httpClient.GetAsync(url);
-                if (!response.IsSuccessStatusCode)
-                {
-                    await Task.Delay(1000);
-                    semaphoreSlim.Release();
-                    continue;
-                }
+                responses.Add(response);
+                semaphore.Release();
+            });
 
-                var content = await response.Content.ReadAsStringAsync();
-                var obj = JsonConvert.DeserializeObject<T>(content);
+            await Task.WhenAll(tasks);
 
-                responses.Add(obj);
-                i++;
-                semaphoreSlim.Release();
+            if (responses.Any(response => !response.IsSuccessStatusCode))
+            {
+                throw new HttpRequestFailException("Http request is failed");
             }
 
-            return responses.ToArray();
+            var result = new List<T>();
+            foreach (var response in responses)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var obj = JsonConvert.DeserializeObject<T>(content);
+                result.Add(obj);
+            }
+
+            return result;
+        }
+
+        public async Task<T> GetAsync(string url)
+        {
+            var semaphore = new Semaphore(realEstateConfiguration.HttpRequestInitialCount, realEstateConfiguration.HttpRequestMaxCount, realEstateConfiguration.SemaphoreName);
+            var httpClient = httpClientFactory.CreateClient(realEstateConfiguration.HttpClientName);
+
+            semaphore.WaitOne();
+            var response = await httpClient.GetAsync(url);
+            semaphore.Release();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestFailException("Http request is failed");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<T>(content);
         }
     }
 }
